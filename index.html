@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>이차함수 그래프 탐구하기</title>
+<style>
+:root{--navy:#19385f;--blue:#2878f0;--red:#ef476f;--green:#169b62;--purple:#8b43dc;--ink:#193253;--muted:#62758e;--line:#d9e4f1;--paper:#f4f8fc}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:system-ui,-apple-system,"Malgun Gothic","맑은 고딕",sans-serif}
+header{background:linear-gradient(115deg,#18375e,#315987);color:#fff;padding:22px clamp(18px,4vw,48px);display:flex;align-items:center;gap:18px}
+.logo{font-size:42px;line-height:1;opacity:.95}h1{font-size:clamp(22px,3vw,32px);margin:0 0 7px}header p{margin:0;color:#e5eefb;font-size:14px}
+main{max-width:1500px;margin:auto;padding:22px;display:grid;grid-template-columns:minmax(245px, .9fr) minmax(340px,1.55fr) minmax(270px,1fr);gap:14px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;min-width:0;box-shadow:0 3px 12px #203c5d08}
+.panel h2{font-size:20px;margin:0 0 5px}.sub{font-size:13px;color:var(--muted);margin:0 0 16px;line-height:1.5}
+.control{padding:14px;border-radius:11px;margin-bottom:12px;border:1px solid transparent}
+.control.a{background:#fff0f3;border-color:#ffe0e7}.control.b{background:#edf5ff;border-color:#dceaff}.control.c{background:#eaf8f1;border-color:#d5f1e3}
+.control-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.coeff{font-size:21px;font-weight:800;font-style:italic}.a .coeff{color:var(--red)}.b .coeff{color:var(--blue)}.c .coeff{color:var(--green)}
+.kind{font-size:12px;color:#4c607a;margin-left:8px}
+.number{width:62px;padding:5px 6px;border:1px solid #cbd8e8;border-radius:7px;background:#fff;text-align:center;font-weight:700;color:var(--ink);font-size:15px}
+input[type=range]{width:100%;margin:17px 0 4px;cursor:pointer;accent-color:var(--blue)}
+.a input[type=range]{accent-color:var(--red)}.b input[type=range]{accent-color:var(--blue)}.c input[type=range]{accent-color:var(--green)}
+.range-labels{display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}
+.formula-box{background:#f1f6fc;border-radius:11px;padding:14px;margin-top:15px}
+.formula-box h3{font-size:16px;margin:0 0 12px}.formula{font-family:Georgia,"Times New Roman",serif;font-size:clamp(22px,2.3vw,30px);font-weight:bold;text-align:center;padding:12px 3px;background:#e5effb;border-radius:9px;white-space:nowrap}
+.fa{color:var(--red)}.fb{color:var(--blue)}.fc{color:var(--green)}
+.stats{display:grid;gap:8px;margin-top:13px;font-size:14px}.stat{display:flex;align-items:center;gap:9px}.dot{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none}.dot.purple{background:var(--purple)}.dash{width:22px;border-top:2px dashed var(--purple);display:inline-block}
+.graph-panel{padding:10px;display:flex;flex-direction:column;min-height:540px}
+.graph-top{display:flex;align-items:center;justify-content:space-between;padding:6px 8px 9px;gap:10px}.graph-top h2{margin:0}.legend{font-size:11px;color:var(--muted)}
+canvas{display:block;width:100%;flex:1;min-height:390px;touch-action:pan-y}
+.graph-note{font-size:12px;color:var(--muted);text-align:center;padding:6px}
+.missions{background:linear-gradient(180deg,#f6fffc,#fff);border-color:#cfece4}
+.mission{border:1px solid;border-radius:11px;padding:13px;margin-top:12px}
+.mission.one{background:#f0f7ff;border-color:#cfe3ff}.mission.two{background:#effbf6;border-color:#c8efdf}.mission.three{background:#f8f2ff;border-color:#e4d2ff}
+.mission-title{display:flex;align-items:center;gap:9px;font-weight:800;font-size:15px}
+.num{width:30px;height:30px;display:grid;place-items:center;color:#fff;border-radius:50%;font-size:16px;flex:none}.one .num{background:var(--blue)}.two .num{background:var(--green)}.three .num{background:var(--purple)}
+.mission p{font-size:13px;line-height:1.65;margin:10px 0 0 39px;color:#314b6d}
+.prompt{margin:11px 0 0 38px;padding:8px 9px;background:#ffffffb8;border-radius:7px;font-size:11px;color:#48617e;line-height:1.45}
+button{border:0;background:var(--navy);color:#fff;padding:9px 13px;border-radius:8px;font:inherit;font-size:13px;cursor:pointer}
+button:hover{background:#2c5787}button:focus-visible,input:focus-visible{outline:3px solid #f6b93b;outline-offset:2px}
+.reset-row{display:flex;justify-content:flex-end;margin-top:8px}
+footer{text-align:center;padding:16px 18px;color:#5d7695;font-size:12px;border-top:1px solid #e1eaf4}
+@media(max-width:1050px){main{grid-template-columns:minmax(240px,.85fr) minmax(330px,1.15fr)}.missions{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.missions h2,.missions>.sub{grid-column:1/-1}.mission{margin-top:0}.mission p{margin-left:0}.prompt{margin-left:0}}
+@media(max-width:680px){header{padding:18px;gap:12px}.logo{font-size:32px}main{padding:12px;grid-template-columns:1fr;gap:12px}.graph-panel{grid-row:1;min-height:400px}.control-panel{grid-row:2}.missions{grid-column:auto;display:block}.mission{margin-top:10px}.mission p,.prompt{margin-left:39px}.graph-top{padding:4px}.graph-top h2{font-size:18px}canvas{min-height:330px}.formula{font-size:25px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo" aria-hidden="true">∪</div>
+  <div><h1>이차함수 그래프 탐구하기</h1><p>계수 a, b, c를 조절하며 그래프가 어떻게 변하는지 관찰해 보세요.</p></div>
+</header>
+<main>
+  <section class="panel control-panel" aria-labelledby="controlsTitle">
+    <h2 id="controlsTitle">⚙ 계수 조절하기</h2>
+    <p class="sub">슬라이더를 움직이거나 숫자를 입력해 보세요.</p>
+    <div class="control a">
+      <div class="control-head"><div><span class="coeff">a</span><span class="kind">이차항 계수</span></div><input class="number" id="aNum" type="number" min="-5" max="5" step="0.5" value="1" aria-label="a 값"></div>
+      <input id="a" type="range" min="-5" max="5" step="0.5" value="1" aria-label="a 슬라이더">
+      <div class="range-labels"><span>−5</span><span>5</span></div>
+    </div>
+    <div class="control b">
+      <div class="control-head"><div><span class="coeff">b</span><span class="kind">일차항 계수</span></div><input class="number" id="bNum" type="number" min="-10" max="10" step="0.5" value="0" aria-label="b 값"></div>
+      <input id="b" type="range" min="-10" max="10" step="0.5" value="0" aria-label="b 슬라이더">
+      <div class="range-labels"><span>−10</span><span>10</span></div>
+    </div>
+    <div class="control c">
+      <div class="control-head"><div><span class="coeff">c</span><span class="kind">상수항</span></div><input class="number" id="cNum" type="number" min="-10" max="10" step="0.5" value="0" aria-label="c 값"></div>
+      <input id="c" type="range" min="-10" max="10" step="0.5" value="0" aria-label="c 슬라이더">
+      <div class="range-labels"><span>−10</span><span>10</span></div>
+    </div>
+    <div class="formula-box">
+      <h3>▦ 현재 함수식</h3>
+      <div class="formula" id="formula" aria-live="polite">y = <span class="fa">1</span>x² + <span class="fb">0</span>x + <span class="fc">0</span></div>
+      <div class="stats">
+        <div class="stat"><span class="dot purple"></span><strong>꼭짓점</strong><span id="vertex">(0, 0)</span></div>
+        <div class="stat"><span class="dash"></span><strong>대칭축</strong><span id="axis">x = 0</span></div>
+        <div class="stat"><span class="dot" style="background:#2878f0"></span><strong>그래프 방향</strong><span id="direction">위로 볼록</span></div>
+      </div>
+    </div>
+    <div class="reset-row"><button id="reset" type="button">처음 값으로</button></div>
+  </section>
+
+  <section class="panel graph-panel" aria-label="이차함수 좌표평면 그래프">
+    <div class="graph-top"><h2>그래프 관찰</h2><span class="legend">● 꼭짓점　┄ 대칭축</span></div>
+    <canvas id="graph" aria-label="계수에 따라 변하는 이차함수 그래프"></canvas>
+    <div class="graph-note">그래프의 모양, 꼭짓점의 위치, y절편을 함께 살펴보세요.</div>
+  </section>
+
+  <section class="panel missions" aria-labelledby="missionTitle">
+    <h2 id="missionTitle">☼ 관찰 미션</h2>
+    <p class="sub">계수를 하나씩 바꾸고, 나머지 계수는 그대로 두며 변화를 설명해 보세요.</p>
+    <article class="mission one">
+      <div class="mission-title"><span class="num">1</span><span>a의 부호가 달라질 때</span></div>
+      <p>a를 양수에서 음수로 바꾸어 보세요. 그래프의 열리는 방향과 폭은 어떻게 달라지나요?</p>
+      <div class="prompt"><strong>관찰 포인트</strong><br>위로 열림 ↔ 아래로 열림 · |a|와 그래프의 폭</div>
+    </article>
+    <article class="mission two">
+      <div class="mission-title"><span class="num">2</span><span>b의 값이 달라질 때</span></div>
+      <p>a와 c를 고정하고 b만 바꾸어 보세요. 꼭짓점과 대칭축은 어느 방향으로 움직이나요?</p>
+      <div class="prompt"><strong>관찰 포인트</strong><br>꼭짓점의 가로 위치 · 대칭축 x = −b/(2a)</div>
+    </article>
+    <article class="mission three">
+      <div class="mission-title"><span class="num">3</span><span>c의 값이 달라질 때</span></div>
+      <p>a와 b를 고정하고 c를 바꾸어 보세요. 그래프와 y축의 교점 및 꼭짓점은 어떻게 변하나요?</p>
+      <div class="prompt"><strong>관찰 포인트</strong><br>위아래 평행이동 · y절편 (0, c)</div>
+    </article>
+  </section>
+</main>
+<footer>작은 계수의 변화가 그래프의 큰 특징을 만듭니다. 직접 조작하며 이차함수의 성질을 발견해 보세요.</footer>
+<script>
+(() => {
+  const ids = ['a','b','c'];
+  const values = {a:1,b:0,c:0};
+  const canvas = document.getElementById('graph');
+  const ctx = canvas.getContext('2d');
+  const fmt = n => {
+    if (Math.abs(n) < 1e-8) n = 0;
+    return Number(n.toFixed(3)).toString();
+  };
+  const signedTerm = (n, suffix='') => {
+    const sign = n < 0 ? ' − ' : ' + ';
+    return {sign, value:fmt(Math.abs(n)), suffix};
+  };
+  function updateFormula(){
+    const {a,b,c}=values;
+    let html = `y = <span class="fa">${fmt(a)}</span>x²`;
+    if (b !== 0) html += `${b<0?' − ':' + '}<span class="fb">${fmt(Math.abs(b))}</span>x`;
+    if (c !== 0) html += `${c<0?' − ':' + '}<span class="fc">${fmt(Math.abs(c))}</span>`;
+    else if (b===0) html += ` + <span class="fc">0</span>`;
+    document.getElementById('formula').innerHTML=html;
+    if (Math.abs(a)<1e-8) {
+      document.getElementById('vertex').textContent='이차함수가 아님 (a = 0)';
+      document.getElementById('axis').textContent='해당 없음';
+      document.getElementById('direction').textContent='직선 또는 상수함수';
+    } else {
+      const h=-b/(2*a), k=a*h*h+b*h+c;
+      document.getElementById('vertex').textContent=`(${fmt(h)}, ${fmt(k)})`;
+      document.getElementById('axis').textContent=`x = ${fmt(h)}`;
+      document.getElementById('direction').textContent=a>0?'위로 열림':'아래로 열림';
+    }
+  }
+  function draw(){
+    const rect=canvas.getBoundingClientRect();
+    const dpr=Math.min(window.devicePixelRatio||1,2);
+    canvas.width=Math.max(1,Math.round(rect.width*dpr));
+    canvas.height=Math.max(1,Math.round(rect.height*dpr));
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    const w=rect.width,h=rect.height;
+    ctx.clearRect(0,0,w,h);
+    const pad={l:35,r:18,t:18,b:29};
+    const plotW=w-pad.l-pad.r, plotH=h-pad.t-pad.b;
+    const xMin=-10,xMax=10,yMin=-10,yMax=10;
+    const X=x=>pad.l+(x-xMin)/(xMax-xMin)*plotW;
+    const Y=y=>pad.t+(yMax-y)/(yMax-yMin)*plotH;
+    // grid
+    ctx.lineWidth=1;ctx.strokeStyle='#e2eaf3';
+    for(let x=xMin;x<=xMax;x++){
+      ctx.beginPath();ctx.moveTo(X(x),pad.t);ctx.lineTo(X(x),h-pad.b);ctx.stroke();
+    }
+    for(let y=yMin;y<=yMax;y++){
+      ctx.beginPath();ctx.moveTo(pad.l,Y(y));ctx.lineTo(w-pad.r,Y(y));ctx.stroke();
+    }
+    // axes and ticks
+    ctx.strokeStyle='#63758c';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(pad.l,Y(0));ctx.lineTo(w-pad.r,Y(0));ctx.moveTo(X(0),pad.t);ctx.lineTo(X(0),h-pad.b);ctx.stroke();
+    ctx.fillStyle='#5b6e85';ctx.font='11px system-ui';ctx.textAlign='center';ctx.textBaseline='top';
+    for(let x=xMin;x<=xMax;x+=2){if(x!==0)ctx.fillText(x,X(x),Y(0)+5);}
+    ctx.textAlign='right';ctx.textBaseline='middle';
+    for(let y=yMin;y<=yMax;y+=2){if(y!==0)ctx.fillText(y,X(0)-7,Y(y));}
+    ctx.fillStyle='#334c69';ctx.font='bold 13px system-ui';ctx.textAlign='left';ctx.textBaseline='top';ctx.fillText('x',w-pad.r-5,Y(0)+7);
+    ctx.textAlign='left';ctx.textBaseline='top';ctx.fillText('y',X(0)+7,pad.t-2);
+    const {a,b,c}=values;
+    if(Math.abs(a)>1e-8){
+      const vx=-b/(2*a), vy=a*vx*vx+b*vx+c;
+      if(vx>=xMin&&vx<=xMax){
+        ctx.save();ctx.setLineDash([5,5]);ctx.strokeStyle='#a855f7';ctx.lineWidth=1.5;
+        ctx.beginPath();ctx.moveTo(X(vx),pad.t);ctx.lineTo(X(vx),h-pad.b);ctx.stroke();ctx.restore();
+      }
+    }
+    // parabola / if a=0, linear function
+    ctx.strokeStyle='#2878f0';ctx.lineWidth=3;ctx.lineJoin='round';ctx.beginPath();
+    let started=false;
+    for(let px=0;px<=plotW;px+=1.5){
+      const x=xMin+px/plotW*(xMax-xMin);
+      const y=a*x*x+b*x+c;
+      if(!Number.isFinite(y)||y<yMin-30||y>yMax+30){started=false;continue;}
+      const yy=Y(y),xx=pad.l+px;
+      if(!started){ctx.moveTo(xx,yy);started=true;}else ctx.lineTo(xx,yy);
+    }
+    ctx.stroke();
+    if(Math.abs(a)>1e-8){
+      const vx=-b/(2*a),vy=a*vx*vx+b*vx+c;
+      if(vx>=xMin&&vx<=xMax&&vy>=yMin&&vy<=yMax){
+        ctx.fillStyle='#9333ea';ctx.beginPath();ctx.arc(X(vx),Y(vy),5.5,0,Math.PI*2);ctx.fill();
+        ctx.font='bold 12px system-ui';ctx.fillStyle='#7e22ce';ctx.textAlign=vx>6?'right':'left';ctx.textBaseline=vy>7?'bottom':'top';
+        ctx.fillText(`(${fmt(vx)}, ${fmt(vy)})`,X(vx)+(vx>6?-8:8),Y(vy)+(vy>7?-8:8));
+      }
+    }
+    // y-intercept
+    if(c>=yMin&&c<=yMax){
+      ctx.fillStyle='#169b62';ctx.beginPath();ctx.arc(X(0),Y(c),3.5,0,Math.PI*2);ctx.fill();
+    }
+  }
+  function setValue(key, raw){
+    let n=Number(raw);
+    if(!Number.isFinite(n)) n=0;
+    const min=key==='a'?-5:-10,max=key==='a'?5:10;
+    n=Math.max(min,Math.min(max,n));
+    n=Math.round(n*2)/2;
+    values[key]=n;
+    document.getElementById(key).value=n;
+    document.getElementById(key+'Num').value=n;
+    updateFormula();draw();
+  }
+  ids.forEach(key=>{
+    document.getElementById(key).addEventListener('input',e=>setValue(key,e.target.value));
+    document.getElementById(key+'Num').addEventListener('change',e=>setValue(key,e.target.value));
+  });
+  document.getElementById('reset').addEventListener('click',()=>{setValue('a',1);setValue('b',0);setValue('c',0);});
+  if('ResizeObserver' in window) new ResizeObserver(draw).observe(canvas);
+  else window.addEventListener('resize',draw);
+  updateFormula();draw();
+})();
+</script>
+</body>
+</html>
